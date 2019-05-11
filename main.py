@@ -1,5 +1,4 @@
 from gamescraper import GameScraper
-from gamescraper import check_cast_to_float
 
 
 def get_urls():
@@ -15,9 +14,9 @@ def get_urls():
 
 def main():
     for url in get_urls():
-        # scraper = GameScraper(get_urls()[0])
         scraper = GameScraper(url)
-        scraper.scrape()
+        info = scraper.scrape()
+        print(info)
 
 
 if __name__ == '__main__':
