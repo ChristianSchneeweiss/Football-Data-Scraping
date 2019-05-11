@@ -1,3 +1,5 @@
+from time import time
+
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 
@@ -53,21 +55,31 @@ class GameScraper:
         self._bs = None
         self._info = None
     
-    def _get_html(self):
-        html = urlopen(self.url)
+    def _get_html(self, path=""):
+        html = urlopen(self.url.strip() + path)
         bs = BeautifulSoup(html.read(), "html.parser")
         return bs
     
     def scrape(self) -> GameInfo:
-        self._bs = self._get_html()
+        start = time()
         self._info = GameInfo()
+        self._scrape_detail_page()
+        # self._scrape_line_up_page()
+        end = time()
+        print(f"Took {(end - start) * 1000} milliseconds")
+        return self._info
+    
+    def _scrape_detail_page(self):
+        self._bs = self._get_html()
         self._add_team_names()
         self._add_goals()
         self._add_stats()
         self._add_result_infos()
         self._add_game_info()
-        
-        return self._info
+    
+    def _scrape_line_up_page(self):
+        self._bs = self._get_html("aufstellung")
+        # print(self._bs)
     
     def _add_team_names(self):
         names = self._bs.findAll("span", {"class": "verein-name"})
@@ -106,12 +118,16 @@ class GameScraper:
     
     def _add_date_playday(self, result_infos):
         result_infos = result_infos.get_text()
+        league = result_infos[:result_infos.find("-")]
+        league = league.split()[:-1]
+        league = " ".join(league)
         result_infos = result_infos[result_infos.find("-") + 1:]
         gameday = result_infos[:result_infos.find(".")].strip()
         result_infos = result_infos[result_infos.find("-") + 1:]
         if "-" in result_infos:
             result_infos = result_infos[:result_infos.find("-")]
         date = result_infos[result_infos.find(",") + 1:].strip()
+        self._info.game_info_add("league", league)
         self._info.game_info_add("date", date)
         self._info.game_info_add("gameday", gameday)
     

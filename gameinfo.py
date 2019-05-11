@@ -3,6 +3,17 @@ class GameInfo:
         self._info = {"home team": {}, "away team": {}, "game info": {}}
     
     @property
+    def info(self):
+        d = {}
+        for key in self._info.keys():
+            for k, v in self._info[key].items():
+                if key == "game info":
+                    d[k] = v
+                else:
+                    d[f"{key} {k}"] = v
+        return d
+    
+    @property
     def home_team(self):
         return self._info["home team"]
     
@@ -12,7 +23,7 @@ class GameInfo:
     
     def home_team_add_info(self, desc, value):
         self._info["home team"][desc] = value
-        
+    
     def home_team_get(self, desc):
         if desc in self._info["home team"]:
             return self._info["home team"][desc]
@@ -28,7 +39,7 @@ class GameInfo:
     
     def away_team_add_info(self, desc, value):
         self._info["away team"][desc] = value
-        
+    
     def away_team_get(self, desc):
         if desc in self._info["away team"]:
             return self._info["away team"][desc]
@@ -58,3 +69,7 @@ class GameInfo:
             s += f"{key}: {value}\n"
         
         return s
+    
+    def short_str(self):
+        return f"{self.game_info_get('season')} {self.game_info_get('league')}: {self.home_team_get('name')} {self.home_team_get('goals')} :" + \
+               f" {self.away_team_get('goals')} {self.away_team_get('name')}"
