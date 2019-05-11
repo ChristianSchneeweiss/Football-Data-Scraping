@@ -10,7 +10,11 @@ class GameInfo:
                 if key == "game info":
                     d[k] = v
                 else:
-                    d[f"{key} {k}"] = v
+                    if k == "lineup":
+                        for i in range(0, len(v)):
+                            d[f"{key} player {i}"] = v[i]
+                    else:
+                        d[f"{key} {k}"] = v
         return d
     
     @property

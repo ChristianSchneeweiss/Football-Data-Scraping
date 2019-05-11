@@ -53,7 +53,7 @@ def main():
     # years = list(range(2005, 2020))
     # nations = ["spanien", "england", "bundesliga", "italien", "frankreich"]
     # urls = get_urls(years, nations)
-    urls = get_urls()
+    urls = get_test_urls()
     print(f"scraping {len(urls)} urls")
     i = []
     infos = spawn_game_scraping_processes(urls)
