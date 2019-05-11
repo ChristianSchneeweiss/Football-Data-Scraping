@@ -71,5 +71,6 @@ class GameInfo:
         return s
     
     def short_str(self):
-        return f"{self.game_info_get('season')} {self.game_info_get('league')}: {self.home_team_get('name')} {self.home_team_get('goals')} :" + \
+        return f"{self.game_info_get('season')} {self.game_info_get('league')} {self.game_info_get('gameday')}.day: {self.home_team_get('name')}" + \
+               f" {self.home_team_get('goals')} :" + \
                f" {self.away_team_get('goals')} {self.away_team_get('name')}"

@@ -60,6 +60,13 @@ def _get_link(a):
     return a.get("href")
 
 
+def _get_name(player_link):
+    html = urlopen("https://www.fussballdaten.de" + player_link)
+    bs = BeautifulSoup(html.read(), "html.parser")
+    name = bs.h1.get_text()
+    return name
+
+
 class GameScraper:
     def __init__(self, url):
         self.url = url
@@ -90,8 +97,24 @@ class GameScraper:
     
     def _scrape_line_up_page(self):
         self._bs = self._get_html("aufstellung")
+        self._add_home_coach()
+        self._add_away_coach()
         self._add_home_line_up()
         self._add_away_line_up()
+    
+    def _add_away_coach(self):
+        try:
+            away_coach = self._bs.find_all("div", {"class": "gast-content"})[2].find("a", {"class": "text lineup"}).get_text()
+            self._info.away_team_add_info("coach", away_coach)
+        except AttributeError:
+            pass
+    
+    def _add_home_coach(self):
+        try:
+            home_coach = self._bs.find_all("div", {"class": "heim-content"})[2].find("a", {"class": "text lineup"}).get_text()
+            self._info.home_team_add_info("coach", home_coach)
+        except AttributeError:
+            pass
     
     def _add_home_line_up(self):
         home = self._bs.find("div", {"class": "heim-content"})
@@ -100,7 +123,7 @@ class GameScraper:
         except AttributeError:
             names = home.findAll("a", {"class": "text lineup"})
         player_links = list(map(_get_link, names))
-        names = list(map(self._get_name, player_links))
+        names = list(map(_get_name, player_links))
         self._info.home_team_add_info("lineup", names)
     
     def _add_away_line_up(self):
@@ -109,9 +132,8 @@ class GameScraper:
             names = away.find("div", {"class": "box-taktik"}).findAll("a", {"class": "name"})
         except AttributeError:
             names = away.findAll("a", {"class": "text lineup"})
-        # names = list(map(_clean_name, names))
         player_links = list(map(_get_link, names))
-        names = list(map(self._get_name, player_links))
+        names = list(map(_get_name, player_links))
         self._info.away_team_add_info("lineup", names)
     
     def _add_team_names(self):
@@ -120,12 +142,6 @@ class GameScraper:
         away_name = names[2].get_text()
         self._info.home_team_add_info("name", home_name)
         self._info.away_team_add_info("name", away_name)
-    
-    def _get_name(self, player_link):
-        html = urlopen("https://www.fussballdaten.de" + player_link)
-        bs = BeautifulSoup(html.read(), "html.parser")
-        name = bs.h1.get_text()
-        return name
     
     def _add_goals(self):
         goals = self._bs.find("div", {"class": "box-spiel-ergebnis"})
@@ -144,11 +160,13 @@ class GameScraper:
         if desc:
             desc = desc.get_text()
             desc = _desc_swapper(desc)
-            home_stat, away_stat = stat.find_all("span")
-            home_stat = _check_cast_to_float(home_stat.get_text())
-            away_stat = _check_cast_to_float(away_stat.get_text())
-            self._info.home_team_add_info(desc, home_stat)
-            self._info.away_team_add_info(desc, away_stat)
+            stats = stat.find_all("span")
+            if len(stats) == 2:
+                home_stat, away_stat = stats
+                home_stat = _check_cast_to_float(home_stat.get_text())
+                away_stat = _check_cast_to_float(away_stat.get_text())
+                self._info.home_team_add_info(desc, home_stat)
+                self._info.away_team_add_info(desc, away_stat)
     
     def _add_result_infos(self):
         result_infos = list(self._bs.find("div", {"class": "ergebnis-info"}).children)[1]
