@@ -1,4 +1,5 @@
 from gamescraper import GameScraper
+from gamescraper import check_cast_to_float
 
 
 def get_urls():
