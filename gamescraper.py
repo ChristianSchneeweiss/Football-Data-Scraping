@@ -49,6 +49,17 @@ def _is_time_included(season_time):
     return len(season_time) >= 2
 
 
+def _clean_name(name):
+    name = name.get_text()
+    if "(" in name:
+        name = name[:name.find("(")]
+    return name
+
+
+def _get_link(a):
+    return a.get("href")
+
+
 class GameScraper:
     def __init__(self, url):
         self.url = url
@@ -64,7 +75,7 @@ class GameScraper:
         start = time()
         self._info = GameInfo()
         self._scrape_detail_page()
-        # self._scrape_line_up_page()
+        self._scrape_line_up_page()
         end = time()
         print(f"Took {(end - start) * 1000} milliseconds")
         return self._info
@@ -79,7 +90,29 @@ class GameScraper:
     
     def _scrape_line_up_page(self):
         self._bs = self._get_html("aufstellung")
-        # print(self._bs)
+        self._add_home_line_up()
+        self._add_away_line_up()
+    
+    def _add_home_line_up(self):
+        home = self._bs.find("div", {"class": "heim-content"})
+        try:
+            names = home.find("div", {"class": "box-taktik"}).findAll("a", {"class": "name"})
+        except AttributeError:
+            names = home.findAll("a", {"class": "text lineup"})
+        player_links = list(map(_get_link, names))
+        names = list(map(self._get_name, player_links))
+        self._info.home_team_add_info("lineup", names)
+    
+    def _add_away_line_up(self):
+        away = self._bs.find("div", {"class": "gast-content"})
+        try:
+            names = away.find("div", {"class": "box-taktik"}).findAll("a", {"class": "name"})
+        except AttributeError:
+            names = away.findAll("a", {"class": "text lineup"})
+        # names = list(map(_clean_name, names))
+        player_links = list(map(_get_link, names))
+        names = list(map(self._get_name, player_links))
+        self._info.away_team_add_info("lineup", names)
     
     def _add_team_names(self):
         names = self._bs.findAll("span", {"class": "verein-name"})
@@ -87,6 +120,12 @@ class GameScraper:
         away_name = names[2].get_text()
         self._info.home_team_add_info("name", home_name)
         self._info.away_team_add_info("name", away_name)
+    
+    def _get_name(self, player_link):
+        html = urlopen("https://www.fussballdaten.de" + player_link)
+        bs = BeautifulSoup(html.read(), "html.parser")
+        name = bs.h1.get_text()
+        return name
     
     def _add_goals(self):
         goals = self._bs.find("div", {"class": "box-spiel-ergebnis"})
