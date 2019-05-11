@@ -1,6 +1,6 @@
 class GameInfo:
     def __init__(self):
-        self._info = {"home team": {}, "away team": {}, "game info": {}}
+        self._info = {"home": {}, "away": {}, "game info": {}}
     
     @property
     def info(self):
@@ -15,34 +15,34 @@ class GameInfo:
     
     @property
     def home_team(self):
-        return self._info["home team"]
+        return self._info["home"]
     
     @home_team.setter
     def home_team(self, value):
-        self._info["home team"] = value
+        self._info["home"] = value
     
     def home_team_add_info(self, desc, value):
-        self._info["home team"][desc] = value
+        self._info["home"][desc] = value
     
     def home_team_get(self, desc):
-        if desc in self._info["home team"]:
-            return self._info["home team"][desc]
+        if desc in self._info["home"]:
+            return self._info["home"][desc]
         return None
     
     @property
     def away_team(self):
-        return self._info["away team"]
+        return self._info["away"]
     
     @away_team.setter
     def away_team(self, value):
-        self._info["away team"] = value
+        self._info["away"] = value
     
     def away_team_add_info(self, desc, value):
-        self._info["away team"][desc] = value
+        self._info["away"][desc] = value
     
     def away_team_get(self, desc):
-        if desc in self._info["away team"]:
-            return self._info["away team"][desc]
+        if desc in self._info["away"]:
+            return self._info["away"][desc]
         return None
     
     def game_info_add(self, desc, value):

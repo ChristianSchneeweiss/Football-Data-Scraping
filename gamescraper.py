@@ -1,7 +1,6 @@
-from time import time
+from urllib.request import urlopen
 
 from bs4 import BeautifulSoup
-from urllib.request import urlopen
 
 from gameinfo import GameInfo
 
@@ -71,7 +70,7 @@ class GameScraper:
     def __init__(self, url):
         self.url = url
         self._bs = None
-        self._info = None
+        self._info = GameInfo()
     
     def _get_html(self, path=""):
         html = urlopen(self.url.strip() + path)
@@ -79,12 +78,8 @@ class GameScraper:
         return bs
     
     def scrape(self) -> GameInfo:
-        start = time()
-        self._info = GameInfo()
         self._scrape_detail_page()
         self._scrape_line_up_page()
-        end = time()
-        print(f"Took {(end - start) * 1000} milliseconds")
         return self._info
     
     def _scrape_detail_page(self):

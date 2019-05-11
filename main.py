@@ -1,5 +1,7 @@
 import os
 from multiprocessing import Pool, cpu_count
+from time import time
+
 import pandas as pd
 
 from gamescraper import GameScraper
@@ -31,7 +33,10 @@ def get_urls(years=None, nations=None):
 
 def scrape_game(url):
     scraper = GameScraper(url)
+    start = time()
     info = scraper.scrape()
+    end = time()
+    print(f"Took {(end - start) * 1000} milliseconds")
     print(f"Process id: {os.getpid()}")
     print(info.short_str())
     print("\n")
@@ -45,18 +50,19 @@ def spawn_game_scraping_processes(urls, processes=(cpu_count() - 1 or 4)):
 
 
 def main():
+    # years = list(range(2005, 2020))
+    # nations = ["spanien", "england", "bundesliga", "italien", "frankreich"]
+    # urls = get_urls(years, nations)
     urls = get_urls()
     print(f"scraping {len(urls)} urls")
-    # urls = get_test_urls()
     i = []
-    # print(scrape_game(urls[3]))
     infos = spawn_game_scraping_processes(urls)
     for info in infos:
         print(info)
         i.append(info.info)
     
     df = pd.DataFrame(i)
-    df.to_csv("test.csv", index=False)
+    df.to_csv("data.csv", index=False)
     print("done")
 
 
