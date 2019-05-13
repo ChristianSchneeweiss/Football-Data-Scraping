@@ -1,5 +1,4 @@
-from urllib.request import urlopen
-
+import requests
 from bs4 import BeautifulSoup
 
 from gameinfo import GameInfo
@@ -53,8 +52,8 @@ def _get_link(a):
 
 
 def _get_name(player_link):
-    html = urlopen("https://www.fussballdaten.de" + player_link)
-    bs = BeautifulSoup(html.read(), "html.parser")
+    html = requests.get("https://www.fussballdaten.de" + player_link)
+    bs = BeautifulSoup(html.text, "html.parser")
     name = bs.h1.get_text()
     return name
 
@@ -66,8 +65,8 @@ class GameScraper:
         self._info = GameInfo()
     
     def _get_html(self, path=""):
-        html = urlopen(self.url.strip() + path)
-        bs = BeautifulSoup(html.read(), "html.parser")
+        html = requests.get(self.url.strip() + path)
+        bs = BeautifulSoup(html.text, "html.parser")
         return bs
     
     def scrape(self) -> GameInfo:
