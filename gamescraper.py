@@ -1,10 +1,11 @@
 import requests
+
 from bs4 import BeautifulSoup
 
 from gameinfo import GameInfo
 
 
-def _desc_swapper(desc):
+def _desc_german_to_english(desc):
     if "Tore" in desc:
         return "goals"
     elif "Ballbesitz" in desc:
@@ -34,7 +35,7 @@ def _desc_swapper(desc):
     return desc
 
 
-def _check_cast_to_float(stat):
+def _save_cast_to_float(stat):
     stat = stat.replace(",", ".")
     try:
         stat = float(stat)
@@ -160,8 +161,8 @@ class GameScraper:
             stats = stat.find_all("span")
             if len(stats) == 2:
                 home_stat, away_stat = stats
-                home_stat = _check_cast_to_float(home_stat.get_text())
-                away_stat = _check_cast_to_float(away_stat.get_text())
+                home_stat = _save_cast_to_float(home_stat.get_text())
+                away_stat = _save_cast_to_float(away_stat.get_text())
                 self._info.home_team_add_info(desc, home_stat)
                 self._info.away_team_add_info(desc, away_stat)
     
@@ -171,7 +172,7 @@ class GameScraper:
             return None
         if desc:
             desc = desc.get_text()
-            desc = _desc_swapper(desc)
+            desc = _desc_german_to_english(desc)
             return desc
         return None
     
